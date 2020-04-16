@@ -96,7 +96,7 @@ export const getIncomeTaxBase = async (inv, year, conf) => {
 
   const income = await getIncome(year, conf),
     includeInv = !Object.keys(income.invoices).includes(inv.number) && year === date.getYear(inv.date),
-    totalIncome = income.income + (includeInv ? inv.amount : 0),
+    totalIncome = income.income + (includeInv ? inv.amount / 1.21 : 0),
     expanses = getExpanses(totalIncome, year, conf),
     months = year < date.getYear(inv.date) ? 12 : date.getMonth(inv.date) + 1
 

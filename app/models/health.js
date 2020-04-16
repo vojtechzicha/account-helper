@@ -1,15 +1,15 @@
 import date from 'date-fns'
 
-import { getInvoices, getBalance, getTransfers } from './../data.js'
-import { sumFirst, roundHundredDown, roundHundredUp, reducerJoinLines, formatCurrency } from './../utils.js'
+import { getBalance, getTransfers } from './../data.js'
+import { sumFirst, reducerJoinLines, formatCurrency } from './../utils.js'
 import { getIncomeTaxBase } from './incomeTax.js'
 
 const diff = (dateA, dateB) =>
   date.differenceInCalendarMonths(dateA, dateB) === 0 ? 1 : Math.abs(date.differenceInCalendarMonths(dateA, dateB))
 
-export const calculateSocialActions = async (inv, conf) => {
+export const calculateHealthActions = async (inv, conf) => {
   const calcs = await Promise.all(
-    Object.keys(conf.social).map((year, i) => getSocialCalculation(inv, Number.parseFloat(year), conf, i === 0))
+    Object.keys(conf.health).map((year, i) => getHealthCalculation(inv, Number.parseFloat(year), conf, i === 0))
   )
 
   if (calcs.length === 0) return []
@@ -27,25 +27,25 @@ export const calculateSocialActions = async (inv, conf) => {
   const totalPrepaymentToBePaid = currentPrepayments
       .map(p => Math.ceil(p.amount / diff(inv.date, p.date)))
       .reduce((p, c) => p + c, 0),
-    totalSocialToBePaid = calcs.reduce((p, c) => p + c.totalSocial, 0),
-    totalSocialPaid = -calcs.reduce((p, c) => p + c.totalPaid, 0),
+    totalHealthToBePaid = calcs.reduce((p, c) => p + c.totalHealth, 0),
+    totalHealthPaid = -calcs.reduce((p, c) => p + c.totalPaid, 0),
     depositBalance = calcs[0].depositBalance,
     prepaymentBalance = calcs[0].prepaymentBalance,
     bufferBalance = calcs[0].bufferBalance,
     missingPrepayment = totalPrepaymentToBePaid - prepaymentBalance,
-    missingDepositBeforeDesire = totalSocialToBePaid - totalSocialPaid - depositBalance - prepaymentBalance - missingPrepayment,
+    missingDepositBeforeDesire = totalHealthToBePaid - totalHealthPaid - depositBalance - prepaymentBalance - missingPrepayment,
     minimalDesiredDeposit =
-      calcs[0].totalSocial - calcs[0].totalPaid - calcs[0].upcomingPrepayments.reduce((p, c) => p + c.amount, 0),
+      calcs[0].totalHealth - calcs[0].totalPaid - calcs[0].upcomingPrepayments.reduce((p, c) => p + c.amount, 0),
     missingDeposit =
       missingDepositBeforeDesire + Math.max(0, -(depositBalance + missingDepositBeforeDesire - minimalDesiredDeposit)),
     desiredBuffer = bufferPrepayments.map(p => Math.ceil(p.amount / diff(inv.date, p.date))).reduce((p, c) => p + c, 0),
     missingBuffer = desiredBuffer - bufferBalance
 
   console.log(
-    'social',
+    'health',
     totalPrepaymentToBePaid,
-    totalSocialToBePaid,
-    totalSocialPaid,
+    totalHealthToBePaid,
+    totalHealthPaid,
     depositBalance,
     prepaymentBalance,
     bufferBalance,
@@ -59,7 +59,7 @@ export const calculateSocialActions = async (inv, conf) => {
   return [
     {
       type: 'ynabBudget',
-      category: conf.ynab.categories.socialInsurancePrepayment,
+      category: conf.ynab.categories.healthInsurancePrepayment,
       amount: missingPrepayment,
       memo: currentPrepayments
         .map(p => `${date.format(p.date, 'MMM yyyy')}: ${formatCurrency(p.amount)}`)
@@ -67,41 +67,38 @@ export const calculateSocialActions = async (inv, conf) => {
     },
     {
       type: 'ynabBudget',
-      category: conf.ynab.categories.socialInsuranceDeposit,
+      category: conf.ynab.categories.healthInsuranceDeposit,
       amount: missingDeposit,
       memo: calcs
-        .filter(c => c.totalSocial - c.totalPaid > 0)
-        .map(c => `${c.year} Social to be Paid: ${formatCurrency(c.totalSocial)}`)
+        .filter(c => c.totalHealth - c.totalPaid > 0)
+        .map(c => `${c.year} Health to be Paid: ${formatCurrency(c.totalHealth)}`)
         .reduce(reducerJoinLines, '')
     },
     {
       type: 'ynabBudget',
-      category: conf.ynab.categories.socialInsuranceBuffer,
+      category: conf.ynab.categories.healthInsuranceBuffer,
       amount: missingBuffer,
       memo: ''
     }
   ]
 }
 
-const getSocialCalculation = async (inv, year, conf, balances = true) => {
-  const depositBalance = balances ? await getBalance(conf.ynab.categories.socialInsuranceDeposit, conf.ynab) : 0,
-    prepaymentBalance = balances ? await getBalance(conf.ynab.categories.socialInsurancePrepayment, conf.ynab) : 0,
-    bufferBalance = balances ? await getBalance(conf.ynab.categories.socialInsuranceBuffer, conf.ynab) : 0
+const getHealthCalculation = async (inv, year, conf, balances = true) => {
+  const depositBalance = balances ? await getBalance(conf.ynab.categories.healthInsuranceDeposit, conf.ynab) : 0,
+    prepaymentBalance = balances ? await getBalance(conf.ynab.categories.healthInsurancePrepayment, conf.ynab) : 0,
+    bufferBalance = balances ? await getBalance(conf.ynab.categories.healthInsuranceBuffer, conf.ynab) : 0
 
-  const totalPaid = (await getTransfers(year, 'SI', conf.ynab)).reduce((p, c) => p + c.amount, 0),
-    upcomingPrepayments = [...conf.social[year].prepayments.filter(p => date.isBefore(inv.date, p.date))]
+  const totalPaid = (await getTransfers(year, 'HI', conf.ynab)).reduce((p, c) => p + c.amount, 0),
+    upcomingPrepayments = [...conf.health[year].prepayments.filter(p => date.isBefore(inv.date, p.date))]
 
   const { totalIncome: income, expanses, months } = await getIncomeTaxBase(inv, year, conf)
 
-  const socialBase = Math.min(
-      Math.max((income - expanses) * 0.5, sumFirst(conf.social[year].minimalBase, months)),
-      (conf.social[year].maximalBase / 12) * months
-    ),
-    socialTotal = Math.ceil(socialBase * conf.social[year].rate)
+  const healthBase = Math.max((income - expanses) * 0.5, sumFirst(conf.health[year].minimalBase, months)),
+    healthTotal = Math.ceil(healthBase * conf.health[year].rate)
 
   return {
     year,
-    totalSocial: socialTotal,
+    totalHealth: healthTotal,
     depositBalance,
     prepaymentBalance,
     bufferBalance,
