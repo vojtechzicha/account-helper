@@ -1,7 +1,7 @@
 import date from 'date-fns'
 
-import { getInvoices, getBalance, getTransfers } from './../data.js'
-import { sumFirst, roundHundredDown, roundHundredUp, reducerJoinLines, formatCurrency } from './../utils.js'
+import { getBalance, getTransfers } from './../data.js'
+import { sumFirst, reducerJoinLines, formatCurrency } from './../utils.js'
 import { getIncomeTaxBase } from './incomeTax.js'
 
 const diff = (dateA, dateB) =>

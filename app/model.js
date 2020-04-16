@@ -3,6 +3,7 @@ import date from 'date-fns'
 import { calculateIncomeTaxActions } from './models/incomeTax.js'
 import { calculateSocialActions } from './models/social.js'
 import { calculateHealthActions } from './models/health.js'
+import { calculateIllnessActions } from './models/illness.js'
 import { resolveAllAndFlatten } from './utils.js'
 
 export const confAllSame = value => [...Array(12)].map(() => value)
@@ -24,7 +25,9 @@ const configuration = {
       socialInsuranceBuffer: '💸👴📊 Buffer - Social Insurance',
       healthInsurancePrepayment: '💸🏥 Health Insurance - Prepayment',
       healthInsuranceDeposit: '💸🏥 Health Insurance - Deposit',
-      healthInsuranceBuffer: '💸🏥📊 Buffer - Health Insurance'
+      healthInsuranceBuffer: '💸🏥📊 Buffer - Health Insurance',
+      illnessInsurancePrepayment: '💸👨‍⚕️ Illness Insurance - Prepayment',
+      illnessInsuranceBuffer: '💸👨‍⚕️📊 Buffer - Illness Insurance'
     }
   },
   incomeTax: {
@@ -60,6 +63,13 @@ const configuration = {
       minimalBase: [17418, 17418, 0, 0, 0, 0, 0, 0, 17418, 17418, 17418, 17418],
       prepayments: confMonthly([3361, 3361, 0, 0, 0, 0, 0, 0, 3361, 3361, 3361, 3361], 2020)
     }
+  },
+  illness: {
+    2020: {
+      rate: 0.021,
+      minimalPayment: confAllSame(126),
+      prepayments: confMonthly(confAllSame(523), 2020)
+    }
   }
 }
 
@@ -67,6 +77,7 @@ export const getActions = async inv => {
   return await resolveAllAndFlatten([
     calculateIncomeTaxActions(inv, configuration),
     calculateSocialActions(inv, configuration),
-    calculateHealthActions(inv, configuration)
+    calculateHealthActions(inv, configuration),
+    calculateIllnessActions(inv, configuration)
   ])
 }
