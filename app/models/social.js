@@ -94,7 +94,7 @@ const getSocialCalculation = async (inv, year, conf, balances = true) => {
   const { totalIncome: income, expanses, months } = await getIncomeTaxBase(inv, year, conf)
 
   const socialBase = Math.min(
-      Math.max((income - expanses) * 0.5, sumFirst(conf.social[year].minimalBase, months)),
+      Math.max((income - expanses) * 0.5 * conf.social[year].factor, sumFirst(conf.social[year].minimalBase, months)),
       (conf.social[year].maximalBase / 12) * months
     ),
     socialTotal = Math.ceil(socialBase * conf.social[year].rate)
