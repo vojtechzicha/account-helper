@@ -16,7 +16,7 @@ export const calculateIncomeTaxActions = async (inv, conf) => {
   const allPrepayments = calcs
     .reduce((p, c) => [...p, ...c.upcomingPrepayments], [])
     .sort(date.compareAsc)
-    .filter((_, i) => i < 2)
+    .filter((p, i) => i < 2 && diff(inv.date, p.date) <= 9)
 
   const totalPrepaymentToBePaid = allPrepayments
       .map(p => Math.ceil(p.amount / diff(inv.date, p.date)))
