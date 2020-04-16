@@ -49,6 +49,7 @@ export const calculateIncomeTaxActions = async (inv, conf) => {
       type: 'ynabBudget',
       category: conf.ynab.categories.incomeTaxPrepayment,
       amount: missingPrepayment,
+      business: true,
       memo: allPrepayments
         .map(p => `${date.format(p.date, 'MMM yyyy')}: ${formatCurrency(p.amount)}`)
         .reduce(reducerJoinLines, '')
@@ -57,6 +58,7 @@ export const calculateIncomeTaxActions = async (inv, conf) => {
       type: 'ynabBudget',
       category: conf.ynab.categories.incomeTaxDeposit,
       amount: missingDeposit,
+      business: true,
       memo: calcs
         .filter(c => c.totalTax - c.totalPaid > 0)
         .map(c => `${c.year} Tax to be Paid: ${formatCurrency(c.totalTax)}`)

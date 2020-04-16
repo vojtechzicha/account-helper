@@ -61,6 +61,7 @@ export const calculateHealthActions = async (inv, conf) => {
       type: 'ynabBudget',
       category: conf.ynab.categories.healthInsurancePrepayment,
       amount: missingPrepayment,
+      business: true,
       memo: currentPrepayments
         .map(p => `${date.format(p.date, 'MMM yyyy')}: ${formatCurrency(p.amount)}`)
         .reduce(reducerJoinLines, '')
@@ -69,6 +70,7 @@ export const calculateHealthActions = async (inv, conf) => {
       type: 'ynabBudget',
       category: conf.ynab.categories.healthInsuranceDeposit,
       amount: missingDeposit,
+      business: true,
       memo: calcs
         .filter(c => c.totalHealth - c.totalPaid > 0)
         .map(c => `${c.year} Health to be Paid: ${formatCurrency(c.totalHealth)}`)
@@ -78,6 +80,7 @@ export const calculateHealthActions = async (inv, conf) => {
       type: 'ynabBudget',
       category: conf.ynab.categories.healthInsuranceBuffer,
       amount: missingBuffer,
+      business: false,
       memo: ''
     }
   ]

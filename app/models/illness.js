@@ -46,6 +46,7 @@ export const calculateIllnessActions = async (inv, conf) => {
       type: 'ynabBudget',
       category: conf.ynab.categories.illnessInsurancePrepayment,
       amount: missingPrepayment,
+      business: true,
       memo: currentPrepayments
         .map(p => `${date.format(p.date, 'MMM yyyy')}: ${formatCurrency(p.amount)}`)
         .reduce(reducerJoinLines, '')
@@ -54,6 +55,7 @@ export const calculateIllnessActions = async (inv, conf) => {
       type: 'ynabBudget',
       category: conf.ynab.categories.illnessInsuranceBuffer,
       amount: missingBuffer,
+      business: false,
       memo: ''
     }
   ]

@@ -61,6 +61,7 @@ export const calculateSocialActions = async (inv, conf) => {
       type: 'ynabBudget',
       category: conf.ynab.categories.socialInsurancePrepayment,
       amount: missingPrepayment,
+      business: true,
       memo: currentPrepayments
         .map(p => `${date.format(p.date, 'MMM yyyy')}: ${formatCurrency(p.amount)}`)
         .reduce(reducerJoinLines, '')
@@ -69,6 +70,7 @@ export const calculateSocialActions = async (inv, conf) => {
       type: 'ynabBudget',
       category: conf.ynab.categories.socialInsuranceDeposit,
       amount: missingDeposit,
+      business: true,
       memo: calcs
         .filter(c => c.totalSocial - c.totalPaid > 0)
         .map(c => `${c.year} Social to be Paid: ${formatCurrency(c.totalSocial)}`)
@@ -78,6 +80,7 @@ export const calculateSocialActions = async (inv, conf) => {
       type: 'ynabBudget',
       category: conf.ynab.categories.socialInsuranceBuffer,
       amount: missingBuffer,
+      business: false,
       memo: ''
     }
   ]
