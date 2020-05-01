@@ -20,7 +20,7 @@
     "nodemon": "^2.0.2"
   },
   "engines": {
-    "node": "^13.11",
+    "node": "^14.1",
     "yarn": "^1.22"
   },
   "type": "module",
