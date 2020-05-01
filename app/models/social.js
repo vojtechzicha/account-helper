@@ -102,6 +102,7 @@ const getSocialCalculation = async (inv, year, conf, balances = true) => {
     ),
     socialTotal = Math.ceil(socialBase * conf.social[year].rate)
 
+  console.log(`social ${year}`, socialTotal, depositBalance, prepaymentBalance, bufferBalance, totalPaid)
   return {
     year,
     totalSocial: socialTotal,

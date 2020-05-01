@@ -56,7 +56,7 @@ const configuration = {
       rate: 0.292,
       minimalBase: [8709, 8709, 0, 0, 0, 0, 0, 0, 8709, 8709, 8709, 8709],
       prepayments: confMonthly([7996, 7996, 0, 0, 0, 0, 0, 0, 7996, 7996, 7996, 7996], 2020),
-      maximalBase: 1569552 - 7996 * 6,
+      maximalBase: 1569552 - 8709 * 6,
       factor: Number.parseFloat(process.env.SOCIAL_FACTOR_2020)
     }
   },
