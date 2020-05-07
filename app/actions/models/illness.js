@@ -7,9 +7,7 @@ const diff = (dateA, dateB) =>
   date.differenceInCalendarMonths(dateA, dateB) === 0 ? 1 : Math.abs(date.differenceInCalendarMonths(dateA, dateB))
 
 export const calculateIllnessActions = async (inv, conf) => {
-  const calcs = await Promise.all(
-    Object.keys(conf.illness).map((year, i) => getIllnessCalculation(inv, Number.parseFloat(year), conf, i === 0))
-  )
+  const calcs = await Promise.all(Object.keys(conf.illness).map((year, i) => getIllnessCalculation(inv, year, conf, i === 0)))
 
   if (calcs.length === 0) return []
 

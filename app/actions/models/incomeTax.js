@@ -106,6 +106,8 @@ export const getIncomeTaxBase = async (inv, year, conf) => {
     currentDiscount = sumFirst(conf.incomeTax[year].discount, months),
     totalTax = roundHundredDown((totalIncome - expanses - currentDeduction) * conf.incomeTax[year].rate - currentDiscount)
 
+  console.log(`base ${year}`, inv, income, totalIncome, expanses, months, currentDeduction, currentDiscount, totalTax)
+
   return {
     income,
     totalIncome,

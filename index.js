@@ -3,8 +3,9 @@ import cors from 'cors'
 import bp from 'body-parser'
 import fs from 'fs'
 import morgan from 'morgan'
+import mongo from 'mongodb'
 
-import api from './app/index.js'
+import actionsApi from './app/actions/index.js'
 
 const app = express()
 
@@ -25,6 +26,14 @@ app.use((req, res, next) => {
 app.use(morgan('dev', { skip: (req, res) => res.statusCode < 400 }))
 app.use(morgan('common', { stream: fs.createWriteStream('./access.log', { flags: 'a' }) }))
 
-app.use('/api/v1/', api)
+app.use('/api/v1/', actionsApi)
 
-app.listen(process.env.PORT || 3030)
+mongo.MongoClient.connect(process.env.MONGO_URI, (err, conn) => {
+  if (err) {
+    console.error('No connection to the database')
+    throw err
+  }
+  app.locals.db = conn.db(process.env.MONGO_DATABASE)
+
+  app.listen(process.env.PORT || 3030)
+})
