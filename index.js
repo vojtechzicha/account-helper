@@ -23,12 +23,15 @@ app.use((req, res, next) => {
   next()
 })
 
-app.use(morgan('dev', { skip: (req, res) => res.statusCode < 400 }))
+app.use(morgan('dev', { skip: (_, res) => res.statusCode < 400 }))
 app.use(morgan('common', { stream: fs.createWriteStream('./access.log', { flags: 'a' }) }))
 
 app.use('/api/v1/', actionsApi)
 
-mongo.MongoClient.connect(process.env.MONGO_URI, (err, conn) => {
+const client = new mongo.MongoClient(process.env.MONGO_URI, {
+  useUnifiedTopology: true
+})
+client.connect((err, conn) => {
   if (err) {
     console.error('No connection to the database')
     throw err
