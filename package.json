@@ -1,7 +1,7 @@
 {
   "name": "account-helper",
   "version": "1.0.0",
-  "description": "Helping OSVČ running their business",
+  "description": "Helping freelancers run their business",
   "main": "index.js",
   "repository": "",
   "author": "Vojtěch Zicha",
@@ -14,19 +14,26 @@
     "express": "^4.17.1",
     "mongodb": "^3.5.7",
     "morgan": "^1.10.0",
-    "uuid": "^7.0.2"
+    "uuid": "^8.3.0"
   },
   "devDependencies": {
-    "dotenv": "^8.2.0",
-    "nodemon": "^2.0.2"
+    "@babel/cli": "^7.10.5",
+    "@babel/core": "^7.11.0",
+    "@babel/node": "^7.10.5",
+    "@babel/preset-env": "^7.11.0",
+    "babel-plugin-inline-dotenv": "^1.6.0",
+    "nodemon": "^2.0.4",
+    "rimraf": "^3.0.2"
   },
   "engines": {
-    "node": "^14.1",
+    "node": "^14.5",
     "yarn": "^1.22"
   },
-  "type": "module",
   "scripts": {
-    "start": "node index.js",
-    "dev:start": "nodemon --ignore 'app/cache/*' -r dotenv/config index.js"
+    "build": "rimraf ./dist && babel ./src -d ./dist",
+    "start": "node dist/index.js",
+    "postinstall": "yarn build",
+    "dev:start:script": "babel-node -- ./src/index.js",
+    "dev:start": "nodemon --exec yarn dev:start:script"
   }
 }
