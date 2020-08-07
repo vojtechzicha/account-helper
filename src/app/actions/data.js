@@ -34,18 +34,9 @@ export const getBalance = async (category, ynabConfig) =>
     .reduce((p, c) => [...p, ...c.categories], [])
     .find(c => c.name === category).balance / 1000
 
-const getYnab = async (uri, ynabConfig) => {
-  const hash = uri.replace(/[^a-zA-Z0-9]/g, '--'),
-    path = `${dir}${hash}.json`
-  if (fs.existsSync(path)) {
-    return JSON.parse(fs.readFileSync(path, 'utf8'))
-  }
-
-  const data = (
+const getYnab = async (uri, ynabConfig) =>
+  (
     await axios.get(`https://api.youneedabudget.com/v1/${uri.replace('BUDGET_ID', ynabConfig.budgetId)}`, {
       headers: { Authorization: `Bearer ${ynabConfig.pat}` }
     })
   ).data
-  fs.writeFileSync(path, JSON.stringify(data))
-  return data
-}
