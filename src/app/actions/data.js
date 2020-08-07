@@ -10,12 +10,11 @@ export const getInvoices = async (year, ynabConfig) =>
       date: new Date(t.date),
       amount:
         t.subtransactions.length > 0
-          ? t.subtransactions.find(st => st.category_name !== ynabConfig.categories.vatIncome).amount / 1000
+          ? t.subtransactions.filter(st => st.category_name !== ynabConfig.categories.vatIncome).reduce((pr, cu) => pr + cu.amount, 0) /
+            1000
           : t.amount / 1000,
       vatAmount:
-        t.subtransactions.length > 0
-          ? t.subtransactions.find(st => st.category_name === ynabConfig.categories.vatIncome).amount / 1000
-          : 0,
+        t.subtransactions.length > 0 ? t.subtransactions.find(st => st.category_name === ynabConfig.categories.vatIncome).amount / 1000 : 0,
       number: t.memo.substring(5).trim()
     }))
 
