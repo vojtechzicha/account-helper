@@ -1,7 +1,4 @@
-import fs from 'fs'
 import axios from 'axios'
-
-const dir = '/Users/vojtechzicha/Developer/vojtechzicha/account-helper/app/actions/cache/'
 
 export const getInvoices = async (year, ynabConfig) =>
   (await getYnab(`budgets/BUDGET_ID/transactions?since_date=${year}-01-01`, ynabConfig)).data.transactions
