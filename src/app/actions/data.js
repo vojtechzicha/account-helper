@@ -2,7 +2,7 @@ import axios from 'axios'
 
 export const getInvoices = async (year, ynabConfig) =>
   (await getYnab(`budgets/BUDGET_ID/transactions?since_date=${year}-01-01`, ynabConfig)).data.transactions
-    .filter(t => t.date.substring(0, 4) === year.toString() && t.memo && t.memo.includes('[INV]') && !t.deleted)
+    .filter(t => t.date.substring(0, 4) === year.toString() && t.memo && t.memo.includes('[INV]') && !t.deleted && t.approved)
     .map(t => ({
       date: new Date(t.date),
       amount:
