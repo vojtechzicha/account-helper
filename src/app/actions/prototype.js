@@ -94,8 +94,7 @@ axios
     const incomeTaxDeduction = configuration.incomeTax.deduction * now.month
     const incomeTaxDiscount = configuration.incomeTax.discount * now.month
     const incomeTaxTotal =
-      Math.floor(((totalIncome - totalExpanses - incomeTaxDeduction) * configuration.incomeTax.rate - incomeTaxDiscount) / 100) *
-      100
+      Math.floor(((totalIncome - totalExpanses - incomeTaxDeduction) * configuration.incomeTax.rate - incomeTaxDiscount) / 100) * 100
     const incomeTaxPaid = documents.reduce((p, c) => p + c.incomeTax, 0)
 
     const incomeTaxMissing = Math.ceil(incomeTaxTotal - incomeTaxPaid - currentBalance.incomeTaxDeposit)
@@ -132,8 +131,7 @@ axios
       configuration.social.factor
     const socialTotal = Math.ceil(socialActualBase * configuration.social.rate) - socialDiscount
     const socialPaid = -documents.reduce((p, c) => p + c.socialInsurance, 0)
-    const socialMissing =
-      socialTotal - socialPaid - currentBalance.socialInsuranceDeposit - currentBalance.socialInsurancePrepayment
+    const socialMissing = socialTotal - socialPaid - currentBalance.socialInsuranceDeposit - currentBalance.socialInsurancePrepayment
     const socialCurrentMonthPrepayment = socialReduced(date.getMonth(now.date)) ? 0 : configuration.social.presribedMonthlyPayment
     const socialNextMonthPrepayment = socialReduced(date.getMonth(date.addMonths(now.date, 1)))
       ? 0
@@ -162,14 +160,10 @@ axios
     console.log('=======')
     console.log(`Insurance to be paid:\t\t\t\t${n(socialTotal)}`)
     console.log(`Insurance paid:\t\t\t\t\t${n(socialPaid)}`)
-    console.log(
-      `Insurance deposit:\t\t\t\t${n(currentBalance.socialInsuranceDeposit + currentBalance.socialInsurancePrepayment)}`
-    )
+    console.log(`Insurance deposit:\t\t\t\t${n(currentBalance.socialInsuranceDeposit + currentBalance.socialInsurancePrepayment)}`)
     console.log('-------')
     console.log(`- Social Insurace Prepayment - ${date.format(now.date, 'MMMM y')}:\t${n(socialCurrentMonthPrepayment)}`)
-    console.log(
-      `- Social Insurace Prepayment - ${date.format(date.addMonths(now.date, 1), 'MMMM y')}:\t${n(socialNextMonthPrepayment)}`
-    )
+    console.log(`- Social Insurace Prepayment - ${date.format(date.addMonths(now.date, 1), 'MMMM y')}:\t${n(socialNextMonthPrepayment)}`)
     console.log('-------')
     console.log(
       `Missing value:\t\t\t\t\t${n(socialNewDeposit + socialNewPrepayment)}${
@@ -192,8 +186,7 @@ axios
     const healthActualBase = Math.max((totalIncome - totalExpanses - incomeTaxDeduction) * 0.5, healthMinimalBase)
     const healthTotal = Math.ceil(healthActualBase * healthRate) - healthDiscount
     const healthPaid = -documents.reduce((p, c) => p + c.healthInsurance, 0)
-    const healthMissing =
-      healthTotal - healthPaid - currentBalance.healthInsuranceDeposit - currentBalance.healthInsurancePrepayment
+    const healthMissing = healthTotal - healthPaid - currentBalance.healthInsuranceDeposit - currentBalance.healthInsurancePrepayment
     const healthCurrentMonthPrepayment = healthReduced(date.getMonth(now.date)) ? 0 : healthMonthlyPrepayment
     const healthNextMonthPrepayment = healthReduced(date.getMonth(date.addMonths(now.date, 1))) ? 0 : healthMonthlyPrepayment
     const healthNewPrepayment = Math.max(
@@ -206,14 +199,10 @@ axios
     console.log('=======')
     console.log(`Insurance to be paid:\t\t\t\t${n(healthTotal)}`)
     console.log(`Insurance paid:\t\t\t\t\t${n(healthPaid)}`)
-    console.log(
-      `Insurance deposit:\t\t\t\t${n(currentBalance.healthInsuranceDeposit + currentBalance.healthInsurancePrepayment)}`
-    )
+    console.log(`Insurance deposit:\t\t\t\t${n(currentBalance.healthInsuranceDeposit + currentBalance.healthInsurancePrepayment)}`)
     console.log('-------')
     console.log(`- Health Insurace Prepayment - ${date.format(now.date, 'MMMM y')}:\t${n(healthCurrentMonthPrepayment)}`)
-    console.log(
-      `- Health Insurace Prepayment - ${date.format(date.addMonths(now.date, 1), 'MMMM y')}:\t${n(healthNextMonthPrepayment)}`
-    )
+    console.log(`- Health Insurace Prepayment - ${date.format(date.addMonths(now.date, 1), 'MMMM y')}:\t${n(healthNextMonthPrepayment)}`)
     console.log('-------')
     console.log(
       `Missing value:\t\t\t\t\t${n(healthNewDeposit + healthNewPrepayment)}${
@@ -225,8 +214,7 @@ axios
     console.log()
 
     const lastIncome = (i => i[i.length - 1])(documents.filter(d => d.id === 'INVOICE')).income
-    const usableIncome =
-      lastIncome - incomeTaxNewDeposit - socialNewDeposit - socialNewPrepayment - healthNewDeposit - healthNewPrepayment
+    const usableIncome = lastIncome - incomeTaxNewDeposit - socialNewDeposit - socialNewPrepayment - healthNewDeposit - healthNewPrepayment
     const reservedIncome =
       usableIncome < liveExpansesMinimum
         ? usableIncome
@@ -260,9 +248,7 @@ axios
         : Math.round(Math.min(Math.min(performanceBufferDesired, bufferMax)), performanceBufferCurrent)
 
     console.log(
-      `Performance\t\t\t\t\t${n(performanceBufferDesired)}\t\t${n(performanceBufferCurrent)}\t\t${n(
-        performanceBufferContribution
-      )}`
+      `Performance\t\t\t\t\t${n(performanceBufferDesired)}\t\t${n(performanceBufferCurrent)}\t\t${n(performanceBufferContribution)}`
     )
 
     const healthBufferDesired = Math.round(
@@ -277,9 +263,7 @@ axios
         ? healthBufferDesired - healthBufferCurrent
         : Math.min(bufferMax, healthBufferDesired - healthBufferCurrent)
 
-    console.log(
-      `Health Insurance\t\t\t\t${n(healthBufferDesired)}\t\t${n(healthBufferCurrent)}\t\t${n(healthBufferContribution)}`
-    )
+    console.log(`Health Insurance\t\t\t\t${n(healthBufferDesired)}\t\t${n(healthBufferCurrent)}\t\t${n(healthBufferContribution)}`)
 
     const socialBufferDesired = Math.round(
       [
@@ -293,9 +277,7 @@ axios
         ? socialBufferDesired - socialBufferCurrent
         : Math.min(bufferMax, socialBufferDesired - socialBufferCurrent)
 
-    console.log(
-      `Social Insurance\t\t\t\t${n(socialBufferDesired)}\t\t${n(socialBufferCurrent)}\t\t${n(socialBufferContribution)}`
-    )
+    console.log(`Social Insurance\t\t\t\t${n(socialBufferDesired)}\t\t${n(socialBufferCurrent)}\t\t${n(socialBufferContribution)}`)
     console.log()
 
     const getPositive = v => (v > 0 ? v : 0)

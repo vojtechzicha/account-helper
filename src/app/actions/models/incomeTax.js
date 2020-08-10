@@ -1,10 +1,9 @@
-import date from 'date-fns'
+import { differenceInCalendarMonths, compareAsc, format, isBefore, getYear, getMonth } from 'date-fns'
 
 import { getInvoices, getBalance, getTransfers } from './../data.js'
 import { sumFirst, roundHundredDown, roundHundredUp, reducerJoinLines, formatCurrency } from './../utils.js'
 
-const diff = (dateA, dateB) =>
-  date.differenceInCalendarMonths(dateA, dateB) === 0 ? 1 : Math.abs(date.differenceInCalendarMonths(dateA, dateB))
+const diff = (dateA, dateB) => (differenceInCalendarMonths(dateA, dateB) === 0 ? 1 : Math.abs(differenceInCalendarMonths(dateA, dateB)))
 
 export const calculateIncomeTaxActions = async (inv, conf) => {
   const calcs = await Promise.all(
@@ -15,22 +14,18 @@ export const calculateIncomeTaxActions = async (inv, conf) => {
 
   const allPrepayments = calcs
     .reduce((p, c) => [...p, ...c.upcomingPrepayments], [])
-    .sort(date.compareAsc)
+    .sort(compareAsc)
     .filter((p, i) => i < 2 && diff(inv.date, p.date) <= 9)
 
-  const totalPrepaymentToBePaid = allPrepayments
-      .map(p => Math.ceil(p.amount / diff(inv.date, p.date)))
-      .reduce((p, c) => p + c, 0),
+  const totalPrepaymentToBePaid = allPrepayments.map(p => Math.ceil(p.amount / diff(inv.date, p.date))).reduce((p, c) => p + c, 0),
     totalTaxToBePaid = calcs.reduce((p, c) => p + c.totalTax, 0),
     totalTaxPaid = -calcs.reduce((p, c) => p + c.totalPaid, 0),
     depositBalance = calcs[0].depositBalance,
     prepaymentBalance = calcs[0].prepaymentBalance,
     missingPrepayment = totalPrepaymentToBePaid - prepaymentBalance,
     missingDepositBeforeDesire = totalTaxToBePaid - totalTaxPaid - depositBalance - prepaymentBalance - missingPrepayment,
-    minimalDesiredDeposit =
-      calcs[0].totalTax - calcs[0].totalPaid - calcs[0].upcomingPrepayments.reduce((p, c) => p + c.amount, 0),
-    missingDeposit =
-      missingDepositBeforeDesire + Math.max(0, -(depositBalance + missingDepositBeforeDesire - minimalDesiredDeposit))
+    minimalDesiredDeposit = calcs[0].totalTax - calcs[0].totalPaid - calcs[0].upcomingPrepayments.reduce((p, c) => p + c.amount, 0),
+    missingDeposit = missingDepositBeforeDesire + Math.max(0, -(depositBalance + missingDepositBeforeDesire - minimalDesiredDeposit))
 
   console.log(
     'incomeTax',
@@ -50,9 +45,7 @@ export const calculateIncomeTaxActions = async (inv, conf) => {
       category: conf.ynab.categories.incomeTaxPrepayment,
       amount: missingPrepayment,
       business: true,
-      memo: allPrepayments
-        .map(p => `${date.format(p.date, 'MMM yyyy')}: ${formatCurrency(p.amount)}`)
-        .reduce(reducerJoinLines, '')
+      memo: allPrepayments.map(p => `${format(p.date, 'MMM yyyy')}: ${formatCurrency(p.amount)}`).reduce(reducerJoinLines, '')
     },
     {
       type: 'ynabBudget',
@@ -72,11 +65,11 @@ const getIncomeTaxCalculation = async (inv, year, conf, balances = true) => {
     prepaymentBalance = balances ? await getBalance(conf.ynab.categories.incomeTaxPrepayment, conf.ynab) : 0
 
   const totalPaid = (await getTransfers(year, 'IT', conf.ynab)).reduce((p, c) => p + c.amount, 0),
-    upcomingPrepayments = [...(await getIncomeTaxPrepayments(inv, year, conf)).filter(p => date.isBefore(inv.date, p.date))]
+    upcomingPrepayments = [...(await getIncomeTaxPrepayments(inv, year, conf)).filter(p => isBefore(inv.date, p.date))]
 
   return {
     year,
-    totalTax: year > date.getYear(inv.date) ? 0 : (await getIncomeTaxBase(inv, year, conf)).totalTax,
+    totalTax: year > getYear(inv.date) ? 0 : (await getIncomeTaxBase(inv, year, conf)).totalTax,
     depositBalance,
     prepaymentBalance,
     totalPaid,
@@ -85,7 +78,7 @@ const getIncomeTaxCalculation = async (inv, year, conf, balances = true) => {
 }
 
 export const getIncomeTaxBase = async (inv, year, conf) => {
-  if (year > date.getYear(inv.date))
+  if (year > getYear(inv.date))
     return {
       income: 0,
       totalIncome: 0,
@@ -97,10 +90,10 @@ export const getIncomeTaxBase = async (inv, year, conf) => {
     }
 
   const income = await getIncome(year, conf),
-    includeInv = !Object.keys(income.invoices).includes(inv.number) && year === date.getYear(inv.date),
+    includeInv = !Object.keys(income.invoices).includes(inv.number) && year === getYear(inv.date),
     totalIncome = income.income + (includeInv ? inv.amount / 1.21 : 0),
     expanses = getExpanses(totalIncome, year, conf),
-    months = year < date.getYear(inv.date) ? 12 : date.getMonth(inv.date) + 1
+    months = year < getYear(inv.date) ? 12 : getMonth(inv.date) + 1
 
   const currentDeduction = sumFirst(conf.incomeTax[year].deduction, months),
     currentDiscount = sumFirst(conf.incomeTax[year].discount, months),

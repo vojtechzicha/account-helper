@@ -10,6 +10,11 @@ app.post('/invoice-changed', async (req, res, next) => {
 
     if (req.body.status !== 'paid') res.json({ ok: false, message: 'invalid state transition' })
 
+    console.log({
+      amount: req.body.total,
+      date: new Date(req.body.paid_at),
+      number: req.body.number
+    })
     const actions = await getActions(
       {
         amount: req.body.total,

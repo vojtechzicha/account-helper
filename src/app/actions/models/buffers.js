@@ -1,4 +1,4 @@
-import date from 'date-fns'
+import { getMonth, addMonths, getYear } from 'date-fns'
 
 import { getBalance } from './../data.js'
 import { calculateIncomeTaxActions } from './incomeTax.js'
@@ -82,13 +82,12 @@ export const calculateBufferActions = async (inv, conf) => {
   ]
 }
 
-const dateAdd = (invDate, n, month = true) =>
-  month ? date.getMonth(date.addMonths(invDate, n)) : date.getYear(date.addMonths(invDate, n))
+const dateAdd = (invDate, n, month = true) => (month ? getMonth(addMonths(invDate, n)) : getYear(addMonths(invDate, n)))
 const getQuarterPlan = (plans, invDate) =>
-  plans[date.getYear(invDate)] === undefined
+  plans[getYear(invDate)] === undefined
     ? 0
     : Math.max(0, plans[dateAdd(invDate, 0, false)][dateAdd(invDate, 0)]) +
       Math.max(0, plans[dateAdd(invDate, 1, false)][dateAdd(invDate, 1)]) +
       Math.max(0, plans[dateAdd(invDate, 2, false)][dateAdd(invDate, 2)])
 const getMonthPlan = (plans, invDate) =>
-  plans[date.getYear(invDate)] === undefined ? 0 : Math.max(0, plans[dateAdd(invDate, 0, false)][dateAdd(invDate, 0)])
+  plans[getYear(invDate)] === undefined ? 0 : Math.max(0, plans[dateAdd(invDate, 0, false)][dateAdd(invDate, 0)])

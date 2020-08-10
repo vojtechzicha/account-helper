@@ -1,4 +1,4 @@
-import date from 'date-fns'
+import { addMonths, subDays } from 'date-fns'
 
 import { calculateIncomeTaxActions } from './models/incomeTax.js'
 import { calculateSocialActions } from './models/social.js'
@@ -10,7 +10,7 @@ import { resolveAllAndFlatten } from './utils.js'
 export const confAllSame = value => [...Array(12)].map(() => value)
 export const confMonthly = (value, year) =>
   value.map((v, i) => ({
-    date: date.addMonths(date.subDays(new Date(`${year}-${String(i + 1).padStart(2, '0')}-01`), 5), 1),
+    date: addMonths(subDays(new Date(`${year}-${String(i + 1).padStart(2, '0')}-01`), 5), 1),
     amount: v
   }))
 export const configuration = {
