@@ -9,5 +9,11 @@
       }
     ]
   ],
-  "plugins": ["inline-dotenv"]
+  "plugins": ["inline-dotenv"],
+  "env": {
+    "development": {
+      "sourceMaps": "inline",
+      "retainLines": true
+    }
+  }
 }
